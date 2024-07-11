@@ -2,6 +2,7 @@ namespace TerminalSnake
 {
     internal class Snake : ISnake
     {
+        private readonly LinkedList<Point> _coordinates = [];
         private readonly I2DCanvas _canvas;
         private Direction _currentDirection = Direction.Right;
         private const char _headWhenMovingUp = '\u1050';
@@ -31,19 +32,33 @@ namespace TerminalSnake
                 throw new ArgumentException("Initial size can't be larger than the buffer width.", "initialSize");
             int canvasHorizontalMiddle = _canvas.Width / 2;
             int canvasVerticalMiddle = _canvas.Height / 2;
-            int tailXPosition = canvasHorizontalMiddle - initialSize / 2;
-            int headXPosition = canvasHorizontalMiddle + initialSize / 2;
-            _canvas.Draw(tailXPosition, canvasVerticalMiddle, _tailWhenMovingRight);
-            for (int x = tailXPosition + 1; x < headXPosition; x++)
+            Point tail = new(canvasHorizontalMiddle - initialSize / 2, canvasVerticalMiddle);
+            Point head = new(canvasHorizontalMiddle + initialSize / 2, canvasVerticalMiddle);
+            _canvas.Draw(tail.X, tail.Y, _tailWhenMovingRight);
+            for (int x = tail.X + 1; x < head.X; x++)
+            {
                 _canvas.Draw(x, canvasVerticalMiddle, _bodyWhenMovingHorizontally);
-            _canvas.Draw(headXPosition, canvasVerticalMiddle, _headWhenMovingRight);
+                _coordinates.AddFirst(new Point(x, canvasVerticalMiddle));
+            }
+            _canvas.Draw(head.X, head.Y, _headWhenMovingRight);
+            _coordinates.AddFirst(head);
+            _coordinates.AddLast(tail);
         }
 
-        public void Move(Direction? direction = null)
+        public void Move(Direction? direction)
         {
             if (direction == _currentDirection.Opposite())
                 return;
             _currentDirection = direction ?? _currentDirection;
+
+            _canvas.Draw(_coordinates.Last!.Value.X, _coordinates.Last!.Value.Y, null);
+            _coordinates.RemoveLast();
+            _canvas.Draw(_coordinates.Last!.Value.X, _coordinates.Last!.Value.Y, _tailWhenMovingRight);
+            _canvas.Draw(_coordinates.First!.Value.X, _coordinates.First!.Value.Y, _bodyWhenMovingHorizontally);
+            _coordinates.AddFirst(new Point(_coordinates.First!.Value.X + 1, _coordinates.First!.Value.Y));
+            _canvas.Draw(_coordinates.First!.Value.X, _coordinates.First!.Value.Y, _headWhenMovingRight);
+            if (_coordinates.First!.Value.X >= _canvas.Width - 1)
+                throw new NotImplementedException("Hit the wall");
         }
 
     }

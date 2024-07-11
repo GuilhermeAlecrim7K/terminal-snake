@@ -21,7 +21,7 @@ namespace TerminalSnake
     }
     internal interface I2DCanvas
     {
-        void Draw(int x, int y, object drawable);
+        void Draw(int x, int y, object? drawable);
         object? PixelAt(int x, int y);
         void Clear();
         int Width { get; }
