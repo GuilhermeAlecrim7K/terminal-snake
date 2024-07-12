@@ -1,4 +1,4 @@
-namespace TerminalSnake
+namespace TerminalSnake.Canvas
 {
     internal enum CanvasColor
     {

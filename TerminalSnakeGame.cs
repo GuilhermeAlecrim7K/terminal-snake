@@ -1,3 +1,6 @@
+using TerminalSnake.Canvas;
+using TerminalSnake.Exceptions;
+using TerminalSnake.Objects.Snake;
 
 namespace TerminalSnake
 {
@@ -13,19 +16,35 @@ namespace TerminalSnake
             Quit,
         }
 
-        private const int MinPlayableWidth = 480;
-        private const int MinPlayableHeight = 480;
+        private const int MinPlayableWidth = 20;
+        private const int MinPlayableHeight = 20;
         private const int horizontalSpeed = 30;
-        private const int verticalSpeed = 60;
+        private const int verticalSpeed = 90;
         private ISnake? _snake;
         private readonly I2DCanvas _canvas = new ConsoleCanvas();
         public void Start()
         {
             Console.CursorVisible = false;
-            StartGame();
+            try
+            {
+                StartGame();
+            }
+            catch (Exception ex)
+            {
+                PrintGameOver(ex.Message);
+            }
+            finally
+            {
+                Console.ResetColor();
+                Console.CursorVisible = true;
+            }
+            Console.SetCursorPosition(0, Console.BufferHeight);
+            Console.Write(new string(' ', Console.BufferWidth));
+            Console.SetCursorPosition(0, Console.BufferHeight);
+            Console.WriteLine();
         }
 
-        private async void StartGame()
+        private void StartGame()
         {
             PrepareCanvasForTheGame();
 
@@ -35,7 +54,7 @@ namespace TerminalSnake
                 Direction? direction = null;
                 if (keyListeningTask.IsCompleted)
                 {
-                    Action action = await keyListeningTask;
+                    Action action = keyListeningTask.Result;
                     if (action == Action.Quit)
                         break;
                     direction = action switch
@@ -47,25 +66,44 @@ namespace TerminalSnake
                         Action.DoNothing => direction,
                         _ => throw new NotImplementedException(),
                     };
+                    if (!_snake!.TryMove(direction))
+                        break;
                     keyListeningTask = ListenToNextInput();
                 }
-                try
+                else
                 {
-                    _snake!.Move(direction);
+                    endGame = !_snake!.TryMove(direction);
                 }
-                catch
-                {
-                    endGame = true;
-                }
-                Thread.Sleep(90);
+                Thread.Sleep(verticalSpeed);
             }
-            _canvas.Draw(0, _canvas.Height, new string('\u0020', _canvas.Width));
-            _canvas.Draw(_canvas.Width / 2 - "Game Over".Length / 2, _canvas.Height, "Game Over");
+            PrintGameOver();
+        }
+
+        private static void PrintGameOver(string? message = null)
+        {
+            const string gameOverMessage = "     Game Over     ";
+            int x = Console.BufferWidth / 2 - gameOverMessage.Length / 2;
+            int y = Console.BufferHeight / 2;
+            Console.SetCursorPosition(x, y);
+            Console.BackgroundColor = ConsoleColor.Red;
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.Write(gameOverMessage);
+
+            if (message == null)
+                return;
+
+            x = Console.BufferWidth / 2 - message.Length / 2;
+            Console.SetCursorPosition(x, ++y);
+            Console.BackgroundColor = ConsoleColor.Black;
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.Write(message);
         }
 
         private void PrepareCanvasForTheGame()
         {
             _canvas.Clear();
+            if (_canvas.Width < MinPlayableWidth || _canvas.Height < MinPlayableHeight)
+                throw new CanvasSizeException(_canvas, MinPlayableWidth, MinPlayableHeight);
             _snake = new Snake(_canvas);
             _snake.Render(7);
         }

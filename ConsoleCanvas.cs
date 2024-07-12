@@ -1,11 +1,19 @@
-namespace TerminalSnake
+using TerminalSnake.Exceptions;
+using TerminalSnake.Extensions;
+
+namespace TerminalSnake.Canvas
 {
     internal class ConsoleCanvas : I2DCanvas
     {
         private readonly Dictionary<string, object> _canvasObjects = [];
+        private int _startingWidth;
+        private int _startingHeight;
+
         public ConsoleCanvas()
         {
             Clear();
+            _startingWidth = Width;
+            _startingHeight = Height;
             FillColor = CanvasColor.Black;
             BrushColor = CanvasColor.Green;
         }
@@ -21,10 +29,16 @@ namespace TerminalSnake
         {
             Console.Clear();
             _canvasObjects.Clear();
+            _startingWidth = Width;
+            _startingHeight = Height;
         }
 
         public void Draw(int x, int y, object? drawable = null)
         {
+            if (Resized())
+                throw new CanvasResizedException();
+            if (x > Width || y > Height)
+                throw new PointOutOfCanvasBoundsException(this, x, y);
             Console.SetCursorPosition(x, y);
 
             if (drawable == null && _canvasObjects.ContainsKey(MakeKey(x, y)))
@@ -48,5 +62,10 @@ namespace TerminalSnake
         }
 
         private static string MakeKey(int x, int y) => $"{x},{y}";
+
+        private bool Resized()
+        {
+            return _startingHeight != Height || _startingWidth != Width;
+        }
     }
 }

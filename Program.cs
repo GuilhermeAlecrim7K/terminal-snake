@@ -6,7 +6,6 @@
         {
             TerminalSnakeGame game = new();
             game.Start();
-            Console.ReadLine();
         }
 
     }

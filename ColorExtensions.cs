@@ -1,4 +1,6 @@
-namespace TerminalSnake
+using TerminalSnake.Canvas;
+
+namespace TerminalSnake.Extensions
 {
     internal static class ColorExtensions
     {

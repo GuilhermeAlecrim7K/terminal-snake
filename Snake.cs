@@ -1,4 +1,6 @@
-namespace TerminalSnake
+using TerminalSnake.Canvas;
+
+namespace TerminalSnake.Objects.Snake
 {
     internal class Snake : ISnake
     {
@@ -45,21 +47,48 @@ namespace TerminalSnake
             _coordinates.AddLast(tail);
         }
 
-        public void Move(Direction? direction)
+        public bool TryMove(Direction? direction)
         {
+            // Trying to move in the opposite direction yields no result and no error
             if (direction == _currentDirection.Opposite())
-                return;
+                return true;
             _currentDirection = direction ?? _currentDirection;
 
+            Point newHead = new(_coordinates.First!.Value.X + 1, _coordinates.First!.Value.Y);
+            bool collided = Collided(newHead);
+            if (!collided)
+            {
+                RedrawTail();
+                RedrawHead(newHead);
+            }
+            return !collided;
+        }
+
+        private void RedrawHead(Point newHead)
+        {
+            // TODO: Check direction. draw neck based on the comparison between old and new x and y
+            _canvas.Draw(_coordinates.First!.Value.X, _coordinates.First!.Value.Y, _bodyWhenMovingHorizontally);
+            _coordinates.AddFirst(newHead);
+            _canvas.Draw(newHead.X, newHead.Y, _headWhenMovingRight);
+        }
+
+        private void RedrawTail()
+        {
+            // TODO: Check Last and the one before the last. Compare x and y to determine tail character
+            Point currentTail = _coordinates.Last!.Value;
+            Point newTail = _coordinates.Last!.Previous!.Value;
             _canvas.Draw(_coordinates.Last!.Value.X, _coordinates.Last!.Value.Y, null);
             _coordinates.RemoveLast();
             _canvas.Draw(_coordinates.Last!.Value.X, _coordinates.Last!.Value.Y, _tailWhenMovingRight);
-            _canvas.Draw(_coordinates.First!.Value.X, _coordinates.First!.Value.Y, _bodyWhenMovingHorizontally);
-            _coordinates.AddFirst(new Point(_coordinates.First!.Value.X + 1, _coordinates.First!.Value.Y));
-            _canvas.Draw(_coordinates.First!.Value.X, _coordinates.First!.Value.Y, _headWhenMovingRight);
-            if (_coordinates.First!.Value.X >= _canvas.Width - 1)
-                throw new NotImplementedException("Hit the wall");
         }
 
+        private bool Collided(Point newHead)
+        {
+            return newHead.X >= _canvas.Width
+                || newHead.X <= 0
+                || newHead.Y >= _canvas.Height
+                || newHead.Y <= 0
+                || _canvas.PixelAt(newHead.X, newHead.Y) != null;
+        }
     }
 }

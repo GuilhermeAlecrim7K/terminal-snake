@@ -1,7 +1,4 @@
-using System.Data;
-using System.Security.Cryptography;
-
-namespace TerminalSnake
+namespace TerminalSnake.Objects.Snake
 {
     internal enum Direction
     {

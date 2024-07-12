@@ -1,8 +1,8 @@
-namespace TerminalSnake
+namespace TerminalSnake.Objects.Snake
 {
     internal interface ISnake
     {
-        void Move(Direction? direction);
+        bool TryMove(Direction? direction);
         void Render(int initialSize);
     }
 }
