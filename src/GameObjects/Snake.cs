@@ -67,23 +67,14 @@ namespace TerminalSnake.GameObjects
         {
             int newX, newY;
             (newX, newY) = (_coordinates.First!.Value.X, _coordinates.First!.Value.Y);
-            switch (_currentDirection)
+            _ = _currentDirection switch
             {
-                case Direction.Up:
-                    newY--;
-                    break;
-                case Direction.Down:
-                    newY++;
-                    break;
-                case Direction.Right:
-                    newX++;
-                    break;
-                case Direction.Left:
-                    newX--;
-                    break;
-                default:
-                    throw new NotImplementedException();
-            }
+                Direction.Up => newY--,
+                Direction.Down => newY++,
+                Direction.Right => newX++,
+                Direction.Left => newX--,
+                _ => throw new NotImplementedException(),
+            };
             return new(newX, newY);
         }
 
