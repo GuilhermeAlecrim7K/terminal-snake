@@ -2,9 +2,8 @@ using TerminalSnake.Extensions;
 
 namespace TerminalSnake.GameObjects.Interfaces
 {
-    internal interface ISnake
+    internal interface IMobileGameObject : IGameObject
     {
         bool TryMove(Direction? direction);
-        void Render(int initialSize);
     }
 }

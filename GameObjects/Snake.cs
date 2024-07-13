@@ -4,11 +4,12 @@ using TerminalSnake.GameObjects.Interfaces;
 
 namespace TerminalSnake.GameObjects
 {
-    internal class Snake(I2DCanvas canvas, char foodChar) : ISnake
+    internal class Snake(I2DCanvas canvas, char foodChar, int initialSize = 7, Action? onEatFood = null) : IMobileGameObject
     {
         private readonly LinkedList<Point> _coordinates = [];
         private readonly I2DCanvas _canvas = canvas;
         private readonly char _foodChar = foodChar;
+        private readonly int _initialSize = initialSize;
         private Direction _currentDirection = Direction.Right;
         private const char HeadWhenMovingUp = '\u1050';
         private const char HeadWhenMovingDown = '\u1051';
@@ -25,16 +26,16 @@ namespace TerminalSnake.GameObjects
         private const char LeftTurnWhenMovingUp = '\u2557';
         private const char LeftTurnWhenMovingDown = '\u255d';
 
-        public void Render(int initialSize)
+        public void Render()
         {
-            if (initialSize < 3)
+            if (_initialSize < 3)
                 throw new ArgumentException("Initial size can't be lower than 3.", "initialSize");
-            if (initialSize >= _canvas.Width)
+            if (_initialSize >= _canvas.Width)
                 throw new ArgumentException("Initial size can't be larger than the buffer width.", "initialSize");
             int canvasHorizontalMiddle = _canvas.Width / 2;
             int canvasVerticalMiddle = _canvas.Height / 2;
-            Point tail = new(canvasHorizontalMiddle - initialSize / 2, canvasVerticalMiddle);
-            Point head = new(canvasHorizontalMiddle + initialSize / 2, canvasVerticalMiddle);
+            Point tail = new(canvasHorizontalMiddle - _initialSize / 2, canvasVerticalMiddle);
+            Point head = new(canvasHorizontalMiddle + _initialSize / 2, canvasVerticalMiddle);
             _canvas.Draw(tail.X, tail.Y, TailWhenMovingRight);
             for (int x = tail.X + 1; x < head.X; x++)
             {
@@ -122,7 +123,10 @@ namespace TerminalSnake.GameObjects
         private void RedrawTail(Point newHead)
         {
             if (_canvas.TryGetPixelAt(newHead.X, newHead.Y, out object? pixel) && pixel is char pixelChar && pixelChar == _foodChar)
+            {
+                onEatFood?.Invoke();
                 return;
+            }
 
             Point currentTail = _coordinates.Last!.Value;
             Point newTail = _coordinates.Last!.Previous!.Value;

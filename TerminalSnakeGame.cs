@@ -2,12 +2,15 @@ using TerminalSnake.Canvas;
 using TerminalSnake.Exceptions;
 using TerminalSnake.Extensions;
 using TerminalSnake.GameObjects;
-using TerminalSnake.GameObjects.Interfaces;
 
 namespace TerminalSnake
 {
     internal class TerminalSnakeGame
     {
+        public TerminalSnakeGame()
+        {
+            _food = new(_canvas, out _foodChar);
+        }
         private enum Action
         {
             DoNothing,
@@ -22,9 +25,10 @@ namespace TerminalSnake
         private const int MinPlayableHeight = 20;
         private const int HorizontalSpeed = 60;
         private const int VerticalSpeed = 120;
-        private ISnake? _snake;
-        private readonly I2DCanvas _canvas = new ConsoleCanvas();
-        private readonly Random _foodRandom = new();
+        private Snake? _snake;
+        private readonly Food _food;
+        private readonly char _foodChar;
+        private readonly ConsoleCanvas _canvas = new();
         public void Start()
         {
             Console.CursorVisible = false;
@@ -75,8 +79,6 @@ namespace TerminalSnake
                 {
                     endGame = !_snake!.TryMove(direction);
                 }
-                // TODO: replace later
-                RenderFood();
                 Thread.Sleep(direction == Direction.Up || direction == Direction.Down ? VerticalSpeed : HorizontalSpeed);
             }
             PrintGameOver();
@@ -108,24 +110,14 @@ namespace TerminalSnake
             if (_canvas.Width < MinPlayableWidth || _canvas.Height < MinPlayableHeight)
                 throw new CanvasSizeException(_canvas, MinPlayableWidth, MinPlayableHeight);
             RenderSnake();
-            RenderFood();
+            _food.Render();
         }
 
-        private void RenderFood()
-        {
-            int x, y;
-            do
-            {
-                x = _foodRandom.Next(1, _canvas.Width);
-                y = _foodRandom.Next(1, _canvas.Height);
-            } while (_canvas.TryGetPixelAt(x, y, out _));
-            _canvas.Draw(x, y, '@');
-        }
 
         private void RenderSnake()
         {
-            _snake = new Snake(_canvas, '@');
-            _snake.Render(7);
+            _snake = new Snake(_canvas, _foodChar, onEatFood: _food.Render);
+            _snake.Render();
         }
 
         private static Task<Action> ListenToNextInput()
