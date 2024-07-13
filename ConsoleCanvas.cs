@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using TerminalSnake.Exceptions;
 using TerminalSnake.Extensions;
 
@@ -53,12 +54,15 @@ namespace TerminalSnake.Canvas
             }
         }
 
-        public object? PixelAt(int x, int y)
+        public bool TryGetPixelAt(int x, int y, [NotNullWhen(true)] out object? pixel)
         {
-            if (_canvasObjects.ContainsKey(MakeKey(x, y)))
-                return _canvasObjects[MakeKey(x, y)];
+
+            bool result = _canvasObjects.ContainsKey(MakeKey(x, y));
+            if (result)
+                pixel = _canvasObjects[MakeKey(x, y)];
             else
-                return null;
+                pixel = null;
+            return result;
         }
 
         private static string MakeKey(int x, int y) => $"{x},{y}";

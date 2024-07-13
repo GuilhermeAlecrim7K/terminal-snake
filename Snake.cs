@@ -6,6 +6,7 @@ namespace TerminalSnake.Objects.Snake
     {
         private readonly LinkedList<Point> _coordinates = [];
         private readonly I2DCanvas _canvas;
+        private readonly char _foodChar;
         private Direction _currentDirection = Direction.Right;
         private const char _headWhenMovingUp = '\u1050';
         private const char _headWhenMovingDown = '\u1051';
@@ -21,9 +22,10 @@ namespace TerminalSnake.Objects.Snake
         private const char _rightTurnWhenMovingDown = '\u255a';
         private const char _leftTurnWhenMovingUp = '\u2557';
         private const char _leftTurnWhenMovingDown = '\u255d';
-        public Snake(I2DCanvas canvas)
+        public Snake(I2DCanvas canvas, char foodChar)
         {
-            this._canvas = canvas;
+            _canvas = canvas;
+            _foodChar = foodChar;
         }
 
         public void Render(int initialSize)
@@ -57,7 +59,7 @@ namespace TerminalSnake.Objects.Snake
             bool collided = Collided(newHead);
             if (!collided)
             {
-                RedrawTail();
+                RedrawTail(newHead);
                 RedrawHead(newHead);
             }
             return !collided;
@@ -120,11 +122,13 @@ namespace TerminalSnake.Objects.Snake
             };
         }
 
-        private void RedrawTail()
+        private void RedrawTail(Point newHead)
         {
+            if (_canvas.TryGetPixelAt(newHead.X, newHead.Y, out object? pixel) && pixel is char pixelChar && pixelChar == _foodChar)
+                return;
+
             Point currentTail = _coordinates.Last!.Value;
             Point newTail = _coordinates.Last!.Previous!.Value;
-            // TODO: if ate food, should not reposition the tail
             _canvas.Draw(_coordinates.Last!.Value.X, _coordinates.Last!.Value.Y, null);
             _coordinates.RemoveLast();
             _canvas.Draw(_coordinates.Last!.Value.X, _coordinates.Last!.Value.Y, _nextTailChar(currentTail, newTail));
@@ -149,8 +153,9 @@ namespace TerminalSnake.Objects.Snake
                 || newHead.X <= 0
                 || newHead.Y >= _canvas.Height
                 || newHead.Y <= 0
-                // TODO: When food is implemented, check if food. Don't know if it should be here though.
-                || (_canvas.PixelAt(newHead.X, newHead.Y) != null && newHead != _coordinates.Last!.Value);
+                || (_canvas.TryGetPixelAt(newHead.X, newHead.Y, out object? pixel)
+                    && pixel is char pixelChar && pixelChar != _foodChar &&
+                    newHead != _coordinates.Last!.Value);
         }
     }
 }

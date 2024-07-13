@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace TerminalSnake.Canvas
 {
     internal enum CanvasColor
@@ -22,7 +24,7 @@ namespace TerminalSnake.Canvas
     internal interface I2DCanvas
     {
         void Draw(int x, int y, object? drawable);
-        object? PixelAt(int x, int y);
+        bool TryGetPixelAt(int x, int y, [NotNullWhen(true)] out object? pixel);
         void Clear();
         int Width { get; }
         int Height { get; }
