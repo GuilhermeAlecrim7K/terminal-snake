@@ -50,11 +50,10 @@ namespace TerminalSnake.Objects.Snake
         public bool TryMove(Direction? direction)
         {
             // Trying to move in the opposite direction yields no result and no error
-            if (direction == _currentDirection.Opposite())
-                return true;
-            _currentDirection = direction ?? _currentDirection;
+            if (direction != _currentDirection.Opposite())
+                _currentDirection = direction ?? _currentDirection;
 
-            Point newHead = new(_coordinates.First!.Value.X + 1, _coordinates.First!.Value.Y);
+            Point newHead = _nextCoordinate();
             bool collided = Collided(newHead);
             if (!collided)
             {
@@ -64,31 +63,94 @@ namespace TerminalSnake.Objects.Snake
             return !collided;
         }
 
+        private Point _nextCoordinate()
+        {
+            int newX, newY;
+            (newX, newY) = (_coordinates.First!.Value.X, _coordinates.First!.Value.Y);
+            switch (_currentDirection)
+            {
+                case Direction.Up:
+                    newY--;
+                    break;
+                case Direction.Down:
+                    newY++;
+                    break;
+                case Direction.Right:
+                    newX++;
+                    break;
+                case Direction.Left:
+                    newX--;
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
+            return new(newX, newY);
+        }
+
         private void RedrawHead(Point newHead)
         {
-            // TODO: Check direction. draw neck based on the comparison between old and new x and y
-            _canvas.Draw(_coordinates.First!.Value.X, _coordinates.First!.Value.Y, _bodyWhenMovingHorizontally);
+            Point newNeck = _coordinates.First!.Value;
+            Point currentNeck = _coordinates.First!.Next!.Value;
+            char neckChar = _nextNeckChar(currentNeck, newHead);
+            char headChar = _currentDirection switch
+            {
+                Direction.Up => _headWhenMovingUp,
+                Direction.Down => _headWhenMovingDown,
+                Direction.Left => _headWhenMovingLeft,
+                Direction.Right => _headWhenMovingRight,
+                _ => throw new NotImplementedException(),
+            };
+            _canvas.Draw(newNeck.X, newNeck.Y, neckChar);
             _coordinates.AddFirst(newHead);
-            _canvas.Draw(newHead.X, newHead.Y, _headWhenMovingRight);
+            _canvas.Draw(newHead.X, newHead.Y, headChar);
+        }
+
+        private char _nextNeckChar(Point currentNeck, Point newHead)
+        {
+            (int x, int y) = (newHead.X - currentNeck.X, newHead.Y - currentNeck.Y);
+            return (x, y, _currentDirection) switch
+            {
+                (2, 0, _) or (-2, 0, _) => _bodyWhenMovingHorizontally,
+                (0, 2, _) or (0, -2, _) => _bodyWhenMovingVertically,
+                (1, -1, Direction.Up) or (-1, 1, Direction.Left) => _leftTurnWhenMovingDown,
+                (1, 1, Direction.Down) or (-1, -1, Direction.Left) => _leftTurnWhenMovingUp,
+                (-1, -1, Direction.Up) or (1, 1, Direction.Right) => _rightTurnWhenMovingDown,
+                (-1, 1, Direction.Down) or (1, -1, Direction.Right) => _rightTurnWhenMovingUp,
+                _ => '#',
+            };
         }
 
         private void RedrawTail()
         {
-            // TODO: Check Last and the one before the last. Compare x and y to determine tail character
             Point currentTail = _coordinates.Last!.Value;
             Point newTail = _coordinates.Last!.Previous!.Value;
+            // TODO: if ate food, should not reposition the tail
             _canvas.Draw(_coordinates.Last!.Value.X, _coordinates.Last!.Value.Y, null);
             _coordinates.RemoveLast();
-            _canvas.Draw(_coordinates.Last!.Value.X, _coordinates.Last!.Value.Y, _tailWhenMovingRight);
+            _canvas.Draw(_coordinates.Last!.Value.X, _coordinates.Last!.Value.Y, _nextTailChar(currentTail, newTail));
+        }
+
+        private char _nextTailChar(Point currentTail, Point newTail)
+        {
+            return (currentTail.X - newTail.X, currentTail.Y - newTail.Y) switch
+            {
+                (1, 0) => _tailWhenMovingLeft,
+                (-1, 0) => _tailWhenMovingRight,
+                (0, 1) => _tailWhenMovingUp,
+                (0, -1) => _tailWhenMovingDown,
+                _ => throw new NotImplementedException("There was an error on rendering the tail."),
+            };
         }
 
         private bool Collided(Point newHead)
         {
-            return newHead.X >= _canvas.Width
+            return
+                newHead.X >= _canvas.Width
                 || newHead.X <= 0
                 || newHead.Y >= _canvas.Height
                 || newHead.Y <= 0
-                || _canvas.PixelAt(newHead.X, newHead.Y) != null;
+                // TODO: When food is implemented, check if food. Don't know if it should be here though.
+                || (_canvas.PixelAt(newHead.X, newHead.Y) != null && newHead != _coordinates.Last!.Value);
         }
     }
 }
