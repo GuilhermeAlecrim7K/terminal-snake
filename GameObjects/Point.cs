@@ -9,9 +9,7 @@ namespace TerminalSnake.GameObjects
 
         public override readonly bool Equals([NotNullWhen(true)] object? obj)
         {
-            if (obj is Point point)
-                return Equals(point);
-            return false;
+            return obj is Point point && Equals(point);
         }
         public readonly bool Equals(Point other)
         {

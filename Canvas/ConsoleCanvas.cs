@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+
 using TerminalSnake.Exceptions;
 using TerminalSnake.Extensions;
 
@@ -58,10 +59,7 @@ namespace TerminalSnake.Canvas
         {
 
             bool result = _canvasObjects.ContainsKey(MakeKey(x, y));
-            if (result)
-                pixel = _canvasObjects[MakeKey(x, y)];
-            else
-                pixel = null;
+            pixel = result ? _canvasObjects[MakeKey(x, y)] : null;
             return result;
         }
 

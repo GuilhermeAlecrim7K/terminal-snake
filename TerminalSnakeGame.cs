@@ -1,8 +1,8 @@
 using TerminalSnake.Canvas;
 using TerminalSnake.Exceptions;
+using TerminalSnake.Extensions;
 using TerminalSnake.GameObjects;
 using TerminalSnake.GameObjects.Interfaces;
-using TerminalSnake.Extensions;
 
 namespace TerminalSnake
 {
@@ -20,8 +20,8 @@ namespace TerminalSnake
 
         private const int MinPlayableWidth = 20;
         private const int MinPlayableHeight = 20;
-        private const int horizontalSpeed = 60;
-        private const int verticalSpeed = 120;
+        private const int HorizontalSpeed = 60;
+        private const int VerticalSpeed = 120;
         private ISnake? _snake;
         private readonly I2DCanvas _canvas = new ConsoleCanvas();
         private readonly Random _foodRandom = new();
@@ -76,8 +76,8 @@ namespace TerminalSnake
                     endGame = !_snake!.TryMove(direction);
                 }
                 // TODO: replace later
-                _renderFood();
-                Thread.Sleep(direction == Direction.Up || direction == Direction.Down ? verticalSpeed : horizontalSpeed);
+                RenderFood();
+                Thread.Sleep(direction == Direction.Up || direction == Direction.Down ? VerticalSpeed : HorizontalSpeed);
             }
             PrintGameOver();
         }
@@ -107,11 +107,11 @@ namespace TerminalSnake
             _canvas.Clear();
             if (_canvas.Width < MinPlayableWidth || _canvas.Height < MinPlayableHeight)
                 throw new CanvasSizeException(_canvas, MinPlayableWidth, MinPlayableHeight);
-            _renderSnake();
-            _renderFood();
+            RenderSnake();
+            RenderFood();
         }
 
-        private void _renderFood()
+        private void RenderFood()
         {
             int x, y;
             do
@@ -122,7 +122,7 @@ namespace TerminalSnake
             _canvas.Draw(x, y, '@');
         }
 
-        private void _renderSnake()
+        private void RenderSnake()
         {
             _snake = new Snake(_canvas, '@');
             _snake.Render(7);

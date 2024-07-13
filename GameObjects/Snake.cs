@@ -4,31 +4,26 @@ using TerminalSnake.GameObjects.Interfaces;
 
 namespace TerminalSnake.GameObjects
 {
-    internal class Snake : ISnake
+    internal class Snake(I2DCanvas canvas, char foodChar) : ISnake
     {
         private readonly LinkedList<Point> _coordinates = [];
-        private readonly I2DCanvas _canvas;
-        private readonly char _foodChar;
+        private readonly I2DCanvas _canvas = canvas;
+        private readonly char _foodChar = foodChar;
         private Direction _currentDirection = Direction.Right;
-        private const char _headWhenMovingUp = '\u1050';
-        private const char _headWhenMovingDown = '\u1051';
-        private const char _headWhenMovingRight = '\u03ff';
-        private const char _headWhenMovingLeft = '\u03fe';
-        private const char _bodyWhenMovingVertically = '\u2551';
-        private const char _bodyWhenMovingHorizontally = '\u2550';
-        private const char _tailWhenMovingUp = '\u02c5';
-        private const char _tailWhenMovingDown = '\u02c4';
-        private const char _tailWhenMovingLeft = '\u02c3';
-        private const char _tailWhenMovingRight = '\u02c2';
-        private const char _rightTurnWhenMovingUp = '\u2554';
-        private const char _rightTurnWhenMovingDown = '\u255a';
-        private const char _leftTurnWhenMovingUp = '\u2557';
-        private const char _leftTurnWhenMovingDown = '\u255d';
-        public Snake(I2DCanvas canvas, char foodChar)
-        {
-            _canvas = canvas;
-            _foodChar = foodChar;
-        }
+        private const char HeadWhenMovingUp = '\u1050';
+        private const char HeadWhenMovingDown = '\u1051';
+        private const char HeadWhenMovingRight = '\u03ff';
+        private const char HeadWhenMovingLeft = '\u03fe';
+        private const char BodyWhenMovingVertically = '\u2551';
+        private const char BodyWhenMovingHorizontally = '\u2550';
+        private const char TailWhenMovingUp = '\u02c5';
+        private const char TailWhenMovingDown = '\u02c4';
+        private const char TailWhenMovingLeft = '\u02c3';
+        private const char TailWhenMovingRight = '\u02c2';
+        private const char RightTurnWhenMovingUp = '\u2554';
+        private const char RightTurnWhenMovingDown = '\u255a';
+        private const char LeftTurnWhenMovingUp = '\u2557';
+        private const char LeftTurnWhenMovingDown = '\u255d';
 
         public void Render(int initialSize)
         {
@@ -40,13 +35,13 @@ namespace TerminalSnake.GameObjects
             int canvasVerticalMiddle = _canvas.Height / 2;
             Point tail = new(canvasHorizontalMiddle - initialSize / 2, canvasVerticalMiddle);
             Point head = new(canvasHorizontalMiddle + initialSize / 2, canvasVerticalMiddle);
-            _canvas.Draw(tail.X, tail.Y, _tailWhenMovingRight);
+            _canvas.Draw(tail.X, tail.Y, TailWhenMovingRight);
             for (int x = tail.X + 1; x < head.X; x++)
             {
-                _canvas.Draw(x, canvasVerticalMiddle, _bodyWhenMovingHorizontally);
+                _canvas.Draw(x, canvasVerticalMiddle, BodyWhenMovingHorizontally);
                 _coordinates.AddFirst(new Point(x, canvasVerticalMiddle));
             }
-            _canvas.Draw(head.X, head.Y, _headWhenMovingRight);
+            _canvas.Draw(head.X, head.Y, HeadWhenMovingRight);
             _coordinates.AddFirst(head);
             _coordinates.AddLast(tail);
         }
@@ -57,7 +52,7 @@ namespace TerminalSnake.GameObjects
             if (direction != _currentDirection.Opposite())
                 _currentDirection = direction ?? _currentDirection;
 
-            Point newHead = _nextCoordinate();
+            Point newHead = NextCoordinate();
             bool collided = Collided(newHead);
             if (!collided)
             {
@@ -67,7 +62,7 @@ namespace TerminalSnake.GameObjects
             return !collided;
         }
 
-        private Point _nextCoordinate()
+        private Point NextCoordinate()
         {
             int newX, newY;
             (newX, newY) = (_coordinates.First!.Value.X, _coordinates.First!.Value.Y);
@@ -95,13 +90,13 @@ namespace TerminalSnake.GameObjects
         {
             Point newNeck = _coordinates.First!.Value;
             Point currentNeck = _coordinates.First!.Next!.Value;
-            char neckChar = _nextNeckChar(currentNeck, newHead);
+            char neckChar = NextNeckChar(currentNeck, newHead);
             char headChar = _currentDirection switch
             {
-                Direction.Up => _headWhenMovingUp,
-                Direction.Down => _headWhenMovingDown,
-                Direction.Left => _headWhenMovingLeft,
-                Direction.Right => _headWhenMovingRight,
+                Direction.Up => HeadWhenMovingUp,
+                Direction.Down => HeadWhenMovingDown,
+                Direction.Left => HeadWhenMovingLeft,
+                Direction.Right => HeadWhenMovingRight,
                 _ => throw new NotImplementedException(),
             };
             _canvas.Draw(newNeck.X, newNeck.Y, neckChar);
@@ -109,17 +104,17 @@ namespace TerminalSnake.GameObjects
             _canvas.Draw(newHead.X, newHead.Y, headChar);
         }
 
-        private char _nextNeckChar(Point currentNeck, Point newHead)
+        private char NextNeckChar(Point currentNeck, Point newHead)
         {
             (int x, int y) = (newHead.X - currentNeck.X, newHead.Y - currentNeck.Y);
             return (x, y, _currentDirection) switch
             {
-                (2, 0, _) or (-2, 0, _) => _bodyWhenMovingHorizontally,
-                (0, 2, _) or (0, -2, _) => _bodyWhenMovingVertically,
-                (1, -1, Direction.Up) or (-1, 1, Direction.Left) => _leftTurnWhenMovingDown,
-                (1, 1, Direction.Down) or (-1, -1, Direction.Left) => _leftTurnWhenMovingUp,
-                (-1, -1, Direction.Up) or (1, 1, Direction.Right) => _rightTurnWhenMovingDown,
-                (-1, 1, Direction.Down) or (1, -1, Direction.Right) => _rightTurnWhenMovingUp,
+                (2, 0, _) or (-2, 0, _) => BodyWhenMovingHorizontally,
+                (0, 2, _) or (0, -2, _) => BodyWhenMovingVertically,
+                (1, -1, Direction.Up) or (-1, 1, Direction.Left) => LeftTurnWhenMovingDown,
+                (1, 1, Direction.Down) or (-1, -1, Direction.Left) => LeftTurnWhenMovingUp,
+                (-1, -1, Direction.Up) or (1, 1, Direction.Right) => RightTurnWhenMovingDown,
+                (-1, 1, Direction.Down) or (1, -1, Direction.Right) => RightTurnWhenMovingUp,
                 _ => '#',
             };
         }
@@ -133,17 +128,17 @@ namespace TerminalSnake.GameObjects
             Point newTail = _coordinates.Last!.Previous!.Value;
             _canvas.Draw(_coordinates.Last!.Value.X, _coordinates.Last!.Value.Y, null);
             _coordinates.RemoveLast();
-            _canvas.Draw(_coordinates.Last!.Value.X, _coordinates.Last!.Value.Y, _nextTailChar(currentTail, newTail));
+            _canvas.Draw(_coordinates.Last!.Value.X, _coordinates.Last!.Value.Y, NextTailChar(currentTail, newTail));
         }
 
-        private char _nextTailChar(Point currentTail, Point newTail)
+        private static char NextTailChar(Point currentTail, Point newTail)
         {
             return (currentTail.X - newTail.X, currentTail.Y - newTail.Y) switch
             {
-                (1, 0) => _tailWhenMovingLeft,
-                (-1, 0) => _tailWhenMovingRight,
-                (0, 1) => _tailWhenMovingUp,
-                (0, -1) => _tailWhenMovingDown,
+                (1, 0) => TailWhenMovingLeft,
+                (-1, 0) => TailWhenMovingRight,
+                (0, 1) => TailWhenMovingUp,
+                (0, -1) => TailWhenMovingDown,
                 _ => throw new NotImplementedException("There was an error on rendering the tail."),
             };
         }
