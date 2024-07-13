@@ -1,6 +1,8 @@
 using TerminalSnake.Canvas;
+using TerminalSnake.Extensions;
+using TerminalSnake.GameObjects.Interfaces;
 
-namespace TerminalSnake.Objects.Snake
+namespace TerminalSnake.GameObjects
 {
     internal class Snake : ISnake
     {
@@ -157,5 +159,6 @@ namespace TerminalSnake.Objects.Snake
                     && pixel is char pixelChar && pixelChar != _foodChar &&
                     newHead != _coordinates.Last!.Value);
         }
+
     }
 }

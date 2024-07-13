@@ -1,6 +1,8 @@
 using TerminalSnake.Canvas;
 using TerminalSnake.Exceptions;
-using TerminalSnake.Objects.Snake;
+using TerminalSnake.GameObjects;
+using TerminalSnake.GameObjects.Interfaces;
+using TerminalSnake.Extensions;
 
 namespace TerminalSnake
 {
@@ -39,8 +41,6 @@ namespace TerminalSnake
                 Console.ResetColor();
                 Console.CursorVisible = true;
             }
-            Console.SetCursorPosition(0, Console.BufferHeight);
-            Console.Write(new string(' ', Console.BufferWidth));
             Console.SetCursorPosition(0, Console.BufferHeight);
             Console.WriteLine();
         }

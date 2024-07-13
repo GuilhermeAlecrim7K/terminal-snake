@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
-namespace TerminalSnake
+namespace TerminalSnake.GameObjects
 {
     internal struct Point(int x, int y) : IEquatable<Point>
     {

@@ -1,4 +1,4 @@
-namespace TerminalSnake.Objects.Snake
+namespace TerminalSnake.Extensions
 {
     internal enum Direction
     {
