@@ -69,6 +69,14 @@ namespace TerminalSnake
                 Thread.Sleep(direction == Direction.Up || direction == Direction.Down ? VerticalSpeed : HorizontalSpeed);
             }
             PrintGameOver();
+            if (!keyListeningTask.IsCompleted)
+            {
+                const string msg = "Press any key to continue...";
+                _canvas.FillColor = CanvasColor.Black;
+                _canvas.BrushColor = CanvasColor.Green;
+                _canvas.Draw(_canvas.Width / 2 - msg.Length / 2, _canvas.Height, msg);
+                while (!keyListeningTask.IsCompleted) ;
+            }
         }
 
         private static void PrintGameOver(string? message = null)
