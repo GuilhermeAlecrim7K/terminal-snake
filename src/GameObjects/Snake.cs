@@ -47,11 +47,12 @@ namespace TerminalSnake.GameObjects
             _coordinates.AddLast(tail);
         }
 
-        public bool TryMove(Direction? direction)
+        public bool TryMove(ref Direction? direction)
         {
             // Trying to move in the opposite direction yields no result and no error
             if (direction != _currentDirection.Opposite())
                 _currentDirection = direction ?? _currentDirection;
+            direction = _currentDirection;
 
             Point newHead = NextCoordinate();
             bool collided = Collided(newHead);

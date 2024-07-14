@@ -58,13 +58,13 @@ namespace TerminalSnake
                         Action.DoNothing => direction,
                         _ => throw new NotImplementedException(),
                     };
-                    if (!_snake!.TryMove(direction))
+                    if (!_snake!.TryMove(ref direction))
                         break;
                     keyListeningTask = ListenToNextInput();
                 }
                 else
                 {
-                    endGame = !_snake!.TryMove(direction);
+                    endGame = !_snake!.TryMove(ref direction);
                 }
                 Thread.Sleep(direction == Direction.Up || direction == Direction.Down ? VerticalSpeed : HorizontalSpeed);
             }

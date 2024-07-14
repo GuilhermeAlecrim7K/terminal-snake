@@ -4,6 +4,6 @@ namespace TerminalSnake.GameObjects.Interfaces
 {
     internal interface IMobileGameObject : IGameObject
     {
-        bool TryMove(Direction? direction);
+        bool TryMove(ref Direction? direction);
     }
 }

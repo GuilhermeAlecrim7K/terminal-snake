@@ -4,8 +4,8 @@ namespace TerminalSnake
     {
         private const int MinPlayableWidth = 20;
         private const int MinPlayableHeight = 20;
-        private const int HorizontalSpeed = 60;
-        private const int VerticalSpeed = 120;
+        private const int HorizontalSpeed = 45;
+        private const int VerticalSpeed = 60;
         private enum Action
         {
             DoNothing,
