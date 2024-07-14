@@ -147,14 +147,10 @@ namespace TerminalSnake
                 result.SetResult(consoleKeyInfo.Key switch
                 {
                     ConsoleKey.Q => Action.Quit,
-                    ConsoleKey.UpArrow => Action.GoUp,
-                    ConsoleKey.DownArrow => Action.GoDown,
-                    ConsoleKey.RightArrow => Action.GoRight,
-                    ConsoleKey.LeftArrow => Action.GoLeft,
-                    ConsoleKey.W => Action.GoUp,
-                    ConsoleKey.S => Action.GoDown,
-                    ConsoleKey.D => Action.GoRight,
-                    ConsoleKey.A => Action.GoLeft,
+                    ConsoleKey.UpArrow or ConsoleKey.W or ConsoleKey.K => Action.GoUp,
+                    ConsoleKey.DownArrow or ConsoleKey.S or ConsoleKey.J => Action.GoDown,
+                    ConsoleKey.RightArrow or ConsoleKey.D or ConsoleKey.L => Action.GoRight,
+                    ConsoleKey.LeftArrow or ConsoleKey.A or ConsoleKey.H => Action.GoLeft,
                     _ => Action.DoNothing,
                 });
 
