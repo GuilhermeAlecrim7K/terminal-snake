@@ -5,26 +5,13 @@ using TerminalSnake.GameObjects;
 
 namespace TerminalSnake
 {
-    internal class TerminalSnakeGame
+    internal partial class TerminalSnakeGame
     {
         public TerminalSnakeGame()
         {
             _food = new(_canvas, out _foodChar);
         }
-        private enum Action
-        {
-            DoNothing,
-            GoUp,
-            GoDown,
-            GoLeft,
-            GoRight,
-            Quit,
-        }
 
-        private const int MinPlayableWidth = 20;
-        private const int MinPlayableHeight = 20;
-        private const int HorizontalSpeed = 60;
-        private const int VerticalSpeed = 120;
         private Snake? _snake;
         private readonly Food _food;
         private readonly char _foodChar;
@@ -109,10 +96,41 @@ namespace TerminalSnake
             _canvas.Clear();
             if (_canvas.Width < MinPlayableWidth || _canvas.Height < MinPlayableHeight)
                 throw new CanvasSizeException(_canvas, MinPlayableWidth, MinPlayableHeight);
+            ShowMainMenu();
             RenderSnake();
             _food.Render();
         }
 
+        private void ShowMainMenu()
+        {
+            const string applicationTitle = "Terminal Snake";
+            const string msg = "Press any key to start...";
+            if (!TryRenderTitleWithAsciiArt(out int titleY))
+            {
+                titleY = _canvas.Height / 2 - 1;
+                _canvas.Draw(_canvas.Width / 2 - applicationTitle.Length / 2, titleY++, applicationTitle);
+            }
+            _canvas.Draw(_canvas.Width / 2 - msg.Length / 2, ++titleY, msg);
+            Console.ReadKey(intercept: true);
+            _canvas.Clear();
+        }
+
+        private bool TryRenderTitleWithAsciiArt(out int titleY)
+        {
+            titleY = -1;
+            int maxWidthOfTitle = MainMenuTitle.Split('\n').Max(s => s.Length);
+            if (_canvas.Width < maxWidthOfTitle)
+                return false;
+            int numberOfLinesInTitle = MainMenuTitle.Count(c => c == '\n');
+            int titleX = _canvas.Width / 2 - maxWidthOfTitle / 2;
+            int totalLines = numberOfLinesInTitle + 2; // 1 space line + 1 text line
+            titleY = _canvas.Height / 2 - totalLines;
+            foreach (string line in MainMenuTitle.Split('\n'))
+            {
+                _canvas.Draw(titleX, titleY++, line);
+            }
+            return true;
+        }
 
         private void RenderSnake()
         {
