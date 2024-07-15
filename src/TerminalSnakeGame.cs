@@ -32,7 +32,7 @@ namespace TerminalSnake
                 Console.ResetColor();
                 Console.CursorVisible = true;
             }
-            Console.SetCursorPosition(0, Console.BufferHeight);
+            Console.SetCursorPosition(0, Console.BufferHeight - 1);
             Console.WriteLine();
         }
 
@@ -74,26 +74,26 @@ namespace TerminalSnake
                 const string msg = "Press any key to continue...";
                 _canvas.FillColor = CanvasColor.Black;
                 _canvas.BrushColor = CanvasColor.Green;
-                _canvas.Draw(_canvas.Width / 2 - msg.Length / 2, _canvas.Height, msg);
+                _canvas.Draw(_canvas.Width / 2 - msg.Length / 2, _canvas.Height - 1, msg);
                 while (!keyListeningTask.IsCompleted) ;
             }
         }
 
-        private static void PrintGameOver(string? message = null)
+        private void PrintGameOver(string? message = null)
         {
             const string gameOverMessage = "     Game Over     ";
-            int x = Console.BufferWidth / 2 - gameOverMessage.Length / 2;
-            int y = Console.BufferHeight / 2;
-            Console.SetCursorPosition(x, y);
-            Console.BackgroundColor = ConsoleColor.Red;
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.Write(gameOverMessage);
+            int x = _canvas.Width / 2 - gameOverMessage.Length / 2;
+            int y = _canvas.Height / 2;
+
+            _canvas.FillColor = CanvasColor.Red;
+            _canvas.BrushColor = CanvasColor.White;
+            _canvas.Draw(x, y, gameOverMessage);
 
             if (message == null)
                 return;
 
             x = Console.BufferWidth / 2 - message.Length / 2;
-            Console.SetCursorPosition(x, ++y);
+            Console.SetCursorPosition(x > 0 ? x : 0, ++y);
             Console.BackgroundColor = ConsoleColor.Black;
             Console.ForegroundColor = ConsoleColor.Red;
             Console.Write(message);
