@@ -20,9 +20,9 @@ namespace TerminalSnake.Canvas
             BrushColor = CanvasColor.Green;
         }
 
-        public int Width => Console.BufferWidth;
+        public int Width => Console.BufferWidth - 1;
 
-        public int Height => Console.BufferHeight;
+        public int Height => Console.BufferHeight - 1;
 
         public CanvasColor FillColor { get => Console.BackgroundColor.ToCanvasColor(); set => Console.BackgroundColor = value.ToConsoleColor(); }
         public CanvasColor BrushColor { get => Console.ForegroundColor.ToCanvasColor(); set => Console.ForegroundColor = value.ToConsoleColor(); }
@@ -38,8 +38,11 @@ namespace TerminalSnake.Canvas
         public void Draw(int x, int y, object? drawable = null)
         {
             if (Resized())
+            {
+                Clear();
                 throw new CanvasResizedException();
-            if (x > Width || y > Height)
+            }
+            if (x < 0 || y < 0 || x > Width || y > Height)
                 throw new PointOutOfCanvasBoundsException(this, x, y);
             Console.SetCursorPosition(x, y);
 
